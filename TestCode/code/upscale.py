@@ -20,6 +20,8 @@ class PregenArgs:
         self.scale = 2
         self.load = "."
         self.save = "."
+        self.degradation = "BI"
+        self.rgb_range = 255
 
 def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
@@ -45,6 +47,7 @@ def run(args, path):
     print("Upscaling single image...")
     LR_Image = prepare(args, [img])
     HR_Image = mdl(LR_Image, 0)
+    HR_Image = utility.quantize(HR_Image, args.rgb_range)
     cv2.imwrite("./result/san/" + name, HR_Image)
 
     cv2.waitKey(0)
