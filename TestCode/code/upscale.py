@@ -16,7 +16,7 @@ class PregenArgs:
         self.chop = True
         self.test_only = True
         self.precision = "single"
-        self.cpu = False  # Always run on CUDA
+        self.cpu = True  # Always run on CUDA
         self.pre_train = ""
         self.scale = 2
         self.load = "."
