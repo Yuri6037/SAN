@@ -59,7 +59,7 @@ def run(args, path):
     print("Upscaling single image...")
     img = img.astype('float32')
     img /= 255
-    img = img.moveaxis(img, 2, 0)
+    img = np.moveaxis(img, 2, 0)
     print(img.shape)
     LR_Image = prepare(args, [img])[0]
     HR_Image = mdl(LR_Image, 0)
