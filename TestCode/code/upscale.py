@@ -18,6 +18,8 @@ class PregenArgs:
         self.cpu = False  # Always run on CUDA
         self.pre_train = ""
         self.scale = 2
+        self.load = "."
+        self.save = "."
 
 def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
