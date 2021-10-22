@@ -88,6 +88,7 @@ def run(args, path, batch):
     print(regions.shape)
     lst = []
     for LR_Batch in np.array_split(regions, batch, axis=0):
+        print(batch)
         print(LR_Batch.shape)
         LR_Batch = prepare(args, [LR_Batch])[0]
         HR_Batch = mdl(LR_Batch, 0)
