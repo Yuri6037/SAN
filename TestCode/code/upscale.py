@@ -68,7 +68,7 @@ def main():
     parser.add_argument('--model-path', type=str, help="path to the model .pt files")
     cmd = parser.parse_args()
     args = PregenArgs()
-    args.pre_train = os.path.join(cmd.model_path, "SAN_BIX" + cmd.scale + ".pt")
+    args.pre_train = os.path.join(cmd.model_path, "SAN_BI" + cmd.scale + "X.pt")
     args.scale = int(cmd.scale)
     run(args, cmd.image)
     print("I ran successfully!")
