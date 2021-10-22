@@ -44,6 +44,7 @@ def prepare(args, l):
     return [_prepare(_l) for _l in l]
 
 def convert_to_pytorch(args, img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = img.astype('float32')
     img /= 255
     img = np.moveaxis(img, 2, 0)
@@ -56,6 +57,7 @@ def reconstruct_image(tensor):
     ndarr = np.moveaxis(ndarr, 0, 2)
     ndarr *= 255
     ndarr = ndarr.astype(np.uint8)
+    ndarr = cv2.cvtColor(ndarr, cv2.COLOR_RGB2BGR)
     return ndarr
 
 def run(args, path):
