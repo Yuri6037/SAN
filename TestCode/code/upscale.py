@@ -27,6 +27,9 @@ class PregenArgs:
         self.n_GPUs = 1
         self.save_models = False
         self.resume = 0
+        self.reduction = 16
+        self.n_colors = 3
+        self.res_scale = 1
 
 def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
