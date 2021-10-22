@@ -227,3 +227,16 @@ def image_decomposition(img, region_size):
             region = img[rx:rx1, ry:ry1]
             regions.append(region)
     return regions
+
+def image_recomposition(img, region_size, regions):
+    regions_x = int(img.shape[0] / region_size)
+    regions_y = int(img.shape[1] / region_size)
+    for i in range(0, regions_x):
+        for j in range(0, regions_y):
+            region = regions[j * regions_x + i]
+            rx = i * region_size
+            ry = j * region_size
+            rx1 = rx + region_size
+            ry1 = ry + region_size
+            img[rx:rx1, ry:ry1] = region
+    return img

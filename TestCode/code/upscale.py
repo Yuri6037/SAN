@@ -58,6 +58,14 @@ def convert_to_pytorch(img):
     img = img.astype('float32')
     return img
 
+def inline_reconstruct_array(regions):
+    lst = []
+    for i in range(regions.shape[0]):
+        region = regions[i,...]
+        region = np.moveaxis(region, 0, 2)
+        lst.append(region)
+    return lst
+
 #def reconstruct_image(tensor):
 #    tensor = tensor.squeeze(0)
 #    ndarr = tensor.detach().cpu().numpy()
@@ -85,7 +93,7 @@ def run(args, path, batch):
     for i in range(0, len(regions)):
         regions[i] = convert_region_to_pytorch(regions[i])
     regions = np.stack(regions, axis=0)
-    print(regions.shape)
+    print("LR Decomposed: %s" % str(regions.shape))
     lst = []
     for LR_Batch in np.array_split(regions, int(regions.shape[0] / batch) + 1, axis=0):
         print(LR_Batch.shape)
@@ -94,9 +102,11 @@ def run(args, path, batch):
         HR_Batch = utility.quantize(HR_Batch, args.rgb_range)
         lst.append(HR_Batch.detach().cpu().numpy())
     regions = np.concatenate(lst, axis=0)
-    print(regions.shape)
-#    HR_Image = mdl(LR_Image, 0)
-#    HR_Image = utility.quantize(HR_Image, args.rgb_range)
+    print("HR Decomposed: %s" % str(regions.shape))
+    regions = inline_reconstruct_array(regions)
+    HR_Image = np.zeros((img.shape[0] * args.scale[0], img.shape[1] * args.scale[0], 3), np.uint8)
+    HR_Image = utility.image_recomposition(HR_Image, 48 * args.scale[0], regions)
+    print("HR: %s" % str(HR_Image.shape))
 #    HR_Image = reconstruct_image(HR_Image)
 #    cv2.imwrite("./result/san/" + name, HR_Image)
 
