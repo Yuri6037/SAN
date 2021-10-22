@@ -55,7 +55,7 @@ def run(args, path):
     ckpt = utility.checkpoint(args)
     mdl = model.Model(args, ckpt)
     print("Upscaling single image...")
-    LR_Image = prepare(args, [img])
+    LR_Image = prepare(args, [img])[0]
     HR_Image = mdl(LR_Image, 0)
     HR_Image = utility.quantize(HR_Image, args.rgb_range)
     cv2.imwrite("./result/san/" + name, HR_Image)
