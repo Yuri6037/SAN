@@ -33,9 +33,9 @@ class PregenArgs:
         self.print_model = True
 
 def prepare(args, l):
-    l = torch.from_numpy(l)
     device = torch.device('cpu' if args.cpu else 'cuda')
     def _prepare(tensor):
+        tensor = torch.from_numpy(tensor)
         if args.precision == 'half':
             tensor = tensor.half()
         return tensor.to(device)
