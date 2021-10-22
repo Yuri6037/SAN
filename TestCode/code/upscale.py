@@ -30,6 +30,7 @@ class PregenArgs:
         self.reduction = 16
         self.n_colors = 3
         self.res_scale = 1
+        self.print_model = True
 
 def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
