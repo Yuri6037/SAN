@@ -23,6 +23,10 @@ class PregenArgs:
         self.degradation = "BI"
         self.testset = "fuckyou"
         self.rgb_range = 255
+        self.self_ensemble = False
+        self.n_GPUs = 1
+        self.save_models = False
+        self.resume = 0
 
 def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
