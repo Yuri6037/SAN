@@ -43,6 +43,21 @@ def prepare(args, l):
         return tensor.to(device)
     return [_prepare(_l) for _l in l]
 
+def convert_to_pytorch(args, img):
+    img = img.astype('float32')
+    img /= 255
+    img = np.moveaxis(img, 2, 0)
+    LR_Image = prepare(args, [img])[0]
+    return LR_Image
+
+def reconstruct_image(tensor):
+    tensor = tensor.squeeze(0)
+    ndarr = tensor.detach().cpu().numpy()
+    ndarr = np.moveaxis(ndarr, 0, 2)
+    ndarr *= 255
+    ndarr = ndarr.astype(np.uint8)
+    return ndarr
+
 def run(args, path):
     img = cv2.imread(path)
     name = os.path.basename(path)
@@ -57,14 +72,11 @@ def run(args, path):
     ckpt = utility.checkpoint(args)
     mdl = model.Model(args, ckpt)
     print("Upscaling single image...")
-    img = img.astype('float32')
-    img /= 255
-    img = np.moveaxis(img, 2, 0)
-    print(img.shape)
-    LR_Image = prepare(args, [img])[0]
+    LR_Image = convert_to_pytorch(args, img)
     HR_Image = mdl(LR_Image, 0)
     HR_Image = utility.quantize(HR_Image, args.rgb_range)
-    #cv2.imwrite("./result/san/" + name, HR_Image)
+    HR_Image = reconstruct_image(HR_Image)
+    cv2.imwrite("./result/san/" + name, HR_Image)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
