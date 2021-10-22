@@ -92,7 +92,7 @@ def run(args, path, batch):
         LR_Batch = prepare(args, [LR_Batch])[0]
         HR_Batch = mdl(LR_Batch, 0)
         HR_Batch = utility.quantize(HR_Batch, args.rgb_range)
-        lst.append(HR_Batch.detach.cpu().numpy())
+        lst.append(HR_Batch.detach().cpu().numpy())
     regions = np.concatenate(lst, axis=0)
     print(regions.shape)
 #    HR_Image = mdl(LR_Image, 0)
