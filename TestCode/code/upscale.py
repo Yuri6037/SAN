@@ -6,6 +6,8 @@ import cv2
 import torch
 import numpy as np
 
+REGION_SIZE = 32
+
 class PregenArgs:
     def __init__(self):
         self.model = "san"
@@ -89,7 +91,7 @@ def run(args, path, batch):
     mdl = model.Model(args, ckpt)
     print("Upscaling single image...")
     LR_Image = convert_to_pytorch(img)
-    regions = utility.image_decomposition(LR_Image, 48)
+    regions = utility.image_decomposition(LR_Image, REGION_SIZE)
     for i in range(0, len(regions)):
         regions[i] = convert_region_to_pytorch(regions[i])
     regions = np.stack(regions, axis=0)
@@ -105,7 +107,7 @@ def run(args, path, batch):
     print("HR Decomposed: %s" % str(regions.shape))
     regions = inline_reconstruct_array(regions)
     HR_Image = np.zeros((img.shape[0] * args.scale[0], img.shape[1] * args.scale[0], 3), np.uint8)
-    HR_Image = utility.image_recomposition(HR_Image, 48 * args.scale[0], regions)
+    HR_Image = utility.image_recomposition(HR_Image, REGION_SIZE * args.scale[0], regions)
     print("HR: %s" % str(HR_Image.shape))
     HR_Image = HR_Image.astype(np.uint8)
     HR_Image = cv2.cvtColor(HR_Image, cv2.COLOR_RGB2BGR)
