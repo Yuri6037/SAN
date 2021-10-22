@@ -86,15 +86,14 @@ def run(args, path, batch):
         regions[i] = convert_region_to_pytorch(regions[i])
     regions = np.stack(regions, axis=0)
     print(regions.shape)
-    LR_Batch = prepare(args, [regions])[0]
     lst = []
-    for tensor in torch.split(LR_Batch, batch):
-        HR_SmallBatch = mdl(tensor, 0)
-        HR_SmallBatch = utility.quantize(HR_SmallBatch, args.rgb_range)
-        lst.append(HR_SmallBatch)
-    HR_Batch = torch.cat(lst, dim=0)
-    ndarr = HR_Batch.detach().cpu().numpy()
-    print(ndarr.shape)
+    for LR_Batch in np.split(regions, batch, axis=0):
+        LR_Batch = prepare(args, [LR_Batch])[0]
+        HR_Batch = mdl(LR_Batch, 0)
+        HR_Batch = utility.quantize(HR_Batch, args.rgb_range)
+        lst.append(HR_Batch.detach.cpu().numpy())
+    regions = np.concatenate(lst, axis=0)
+    print(regions.shape)
 #    HR_Image = mdl(LR_Image, 0)
 #    HR_Image = utility.quantize(HR_Image, args.rgb_range)
 #    HR_Image = reconstruct_image(HR_Image)
