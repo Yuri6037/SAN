@@ -59,3 +59,5 @@ def main():
     args.scale = int(cmd.scale)
     run(args, cmd.image)
     print("I ran successfully!")
+
+main()
