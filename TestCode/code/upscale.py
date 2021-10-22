@@ -107,6 +107,7 @@ def run(args, path, batch):
     HR_Image = np.zeros((img.shape[0] * args.scale[0], img.shape[1] * args.scale[0], 3), np.uint8)
     HR_Image = utility.image_recomposition(HR_Image, 48 * args.scale[0], regions)
     print("HR: %s" % str(HR_Image.shape))
+    HR_Image = HR_Image.astype(np.uint8)
     HR_Image = cv2.cvtColor(HR_Image, cv2.COLOR_RGB2BGR)
     cv2.imwrite("./result/san/" + name, HR_Image)
 

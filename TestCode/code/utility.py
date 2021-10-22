@@ -233,7 +233,7 @@ def image_recomposition(img, region_size, regions):
     regions_y = int(img.shape[1] / region_size)
     for i in range(0, regions_x):
         for j in range(0, regions_y):
-            region = regions[j * regions_x + i]
+            region = regions[i * regions_y + j]
             rx = i * region_size
             ry = j * region_size
             rx1 = rx + region_size
