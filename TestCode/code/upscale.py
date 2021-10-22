@@ -87,7 +87,7 @@ def run(args, path, batch):
     regions = np.stack(regions, axis=0)
     print(regions.shape)
     lst = []
-    for LR_Batch in np.split(regions, batch, axis=0):
+    for LR_Batch in np.array_split(regions, batch, axis=0):
         LR_Batch = prepare(args, [LR_Batch])[0]
         HR_Batch = mdl(LR_Batch, 0)
         HR_Batch = utility.quantize(HR_Batch, args.rgb_range)
