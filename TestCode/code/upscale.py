@@ -6,7 +6,7 @@ import cv2
 import torch
 import numpy as np
 
-REGION_SIZE = 16
+REGION_SIZE = 8
 
 class PregenArgs:
     def __init__(self):
