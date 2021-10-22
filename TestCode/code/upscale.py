@@ -37,28 +37,36 @@ def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
     def _prepare(tensor):
         tensor = torch.from_numpy(tensor)
-        tensor = tensor.unsqueeze(0)
         if args.precision == 'half':
             tensor = tensor.half()
         return tensor.to(device)
     return [_prepare(_l) for _l in l]
 
-def convert_to_pytorch(args, img):
+#def convert_to_pytorch(args, img):
+#    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+#    img = img.astype('float32')
+#    img = np.moveaxis(img, 2, 0)
+#    LR_Image = prepare(args, [img])[0]
+#    return LR_Image
+
+def convert_region_to_pytorch(img):
+    img = np.moveaxis(img, 2, 0)
+    return img
+
+def convert_to_pytorch(img):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = img.astype('float32')
-    img = np.moveaxis(img, 2, 0)
-    LR_Image = prepare(args, [img])[0]
-    return LR_Image
+    return img
 
-def reconstruct_image(tensor):
-    tensor = tensor.squeeze(0)
-    ndarr = tensor.detach().cpu().numpy()
-    ndarr = np.moveaxis(ndarr, 0, 2)
-    ndarr = ndarr.astype(np.uint8)
-    ndarr = cv2.cvtColor(ndarr, cv2.COLOR_RGB2BGR)
-    return ndarr
+#def reconstruct_image(tensor):
+#    tensor = tensor.squeeze(0)
+#    ndarr = tensor.detach().cpu().numpy()
+#    ndarr = np.moveaxis(ndarr, 0, 2)
+#    ndarr = ndarr.astype(np.uint8)
+#    ndarr = cv2.cvtColor(ndarr, cv2.COLOR_RGB2BGR)
+#    return ndarr
 
-def run(args, path):
+def run(args, path, batch):
     img = cv2.imread(path)
     name = os.path.basename(path)
 
@@ -72,11 +80,25 @@ def run(args, path):
     ckpt = utility.checkpoint(args)
     mdl = model.Model(args, ckpt)
     print("Upscaling single image...")
-    LR_Image = convert_to_pytorch(args, img)
-    HR_Image = mdl(LR_Image, 0)
-    HR_Image = utility.quantize(HR_Image, args.rgb_range)
-    HR_Image = reconstruct_image(HR_Image)
-    cv2.imwrite("./result/san/" + name, HR_Image)
+    LR_Image = convert_to_pytorch(img)
+    regions = utility.image_decomposition(LR_Image, 48)
+    for i in range(0, len(regions)):
+        regions[i] = convert_region_to_pytorch(regions[i])
+    regions = np.stack(regions, axis=0)
+    print(regions.shape)
+    LR_Batch = prepare(args, [regions])[0]
+    lst = []
+    for tensor in torch.split(LR_Batch, batch):
+        HR_SmallBatch = mdl(tensor, 0)
+        HR_SmallBatch = utility.quantize(HR_SmallBatch, args.rgb_range)
+        lst.append(HR_SmallBatch)
+    HR_Batch = torch.cat(lst, dim=0)
+    ndarr = HR_Batch.detach().cpu().numpy()
+    print(ndarr.shape)
+#    HR_Image = mdl(LR_Image, 0)
+#    HR_Image = utility.quantize(HR_Image, args.rgb_range)
+#    HR_Image = reconstruct_image(HR_Image)
+#    cv2.imwrite("./result/san/" + name, HR_Image)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -85,12 +107,13 @@ def main():
     parser = argparse.ArgumentParser(description='Upscale single image')
     parser.add_argument('--scale', default='2', choices=['2', '3', '4', '8'], help='super resolution scale')
     parser.add_argument('--image', type=str, help="image path")
+    parser.add_argument('--batch', type=int, default=4, help="image batch size")
     parser.add_argument('--model-path', type=str, help="path to the model .pt files")
     cmd = parser.parse_args()
     args = PregenArgs()
     args.pre_train = os.path.join(cmd.model_path, "SAN_BI" + cmd.scale + "X.pt")
     args.scale = int(cmd.scale)
-    run(args, cmd.image)
+    run(args, cmd.image, cmd.batch)
     print("I ran successfully!")
 
 main()
