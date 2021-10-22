@@ -21,6 +21,7 @@ class PregenArgs:
         self.load = "."
         self.save = "."
         self.degradation = "BI"
+        self.testset = "fuckyou"
         self.rgb_range = 255
 
 def prepare(args, l):
