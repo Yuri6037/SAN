@@ -1,7 +1,7 @@
 import os
 import cv2
 
-from TrainCode.data import srdata
+from data import srdata
 
 class Custom(srdata.SRData):
     def __init__(self, args, train=True):
