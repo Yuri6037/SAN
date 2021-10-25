@@ -25,7 +25,7 @@ class SRData(data.Dataset):
                 np.load(self._name_lrbin(s)) for s in self.scale
             ]
 
-        if args.ext == 'img' or benchmark:
+        if args.ext == 'img' or benchmark or args.ext == 'raw':
             self.images_hr, self.images_lr = self._scan()
         elif args.ext.find('sep') >= 0:
             self.images_hr, self.images_lr = self._scan()
@@ -106,6 +106,9 @@ class SRData(data.Dataset):
             filename = hr
             lr = misc.imread(lr)
             hr = misc.imread(hr)
+        elif self.args.ext == 'raw':
+            filename = "Image #" + str(idx + 1)
+            return lr, hr, filename
         elif self.args.ext.find('sep') >= 0:
             filename = hr
             lr = np.load(lr)
