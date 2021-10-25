@@ -7,19 +7,14 @@ import collections
 import torch
 import torch.multiprocessing as multiprocessing
 
-from torch._C import _set_worker_signal_handlers, _update_worker_pids, \
-    _remove_worker_pids, _error_if_any_worker_fails
+from torch._C import _set_worker_signal_handlers, _set_worker_pids
+from torch.utils.data._utils.pin_memory import _pin_memory_loop
 from torch.utils.data.dataloader import DataLoader
-from torch.utils.data.dataloader import _DataLoaderIter
+from torch.utils.data.dataloader import _SingleProcessDataLoaderIter
 
 from torch.utils.data.dataloader import ExceptionWrapper
-from torch.utils.data.dataloader import _use_shared_memory
-from torch.utils.data.dataloader import _worker_manager_loop
-from torch.utils.data.dataloader import numpy_type_map
 from torch.utils.data.dataloader import default_collate
-from torch.utils.data.dataloader import pin_memory_batch
-from torch.utils.data.dataloader import _SIGCHLD_handler_set
-from torch.utils.data.dataloader import _set_SIGCHLD_handler
+#from torch.utils.data.dataloader import _set_SIGCHLD_handler
 
 if sys.version_info[0] == 2:
     import Queue as queue
@@ -52,7 +47,7 @@ def _ms_loop(dataset, index_queue, data_queue, collate_fn, scale, seed, init_fn,
         else:
             data_queue.put((idx, samples))
 
-class _MSDataLoaderIter(_DataLoaderIter):
+class _MSDataLoaderIter(_SingleProcessDataLoaderIter):
     def __init__(self, loader):
         self.dataset = loader.dataset
         self.scale = loader.scale
@@ -104,7 +99,7 @@ class _MSDataLoaderIter(_DataLoaderIter):
                     # do not initialize cuda context if not necessary
                     maybe_device_id = None
                 self.worker_manager_thread = threading.Thread(
-                    target=_worker_manager_loop,
+                    target=_pin_memory_loop,
                     args=(self.worker_result_queue, self.data_queue, self.done_event, self.pin_memory,
                           maybe_device_id))
                 self.worker_manager_thread.daemon = True
@@ -116,8 +111,8 @@ class _MSDataLoaderIter(_DataLoaderIter):
                 w.daemon = True  # ensure that the worker exits on process exit
                 w.start()
 
-            _update_worker_pids(id(self), tuple(w.pid for w in self.workers))
-            _set_SIGCHLD_handler()
+            _set_worker_pids(id(self), tuple(w.pid for w in self.workers))
+            #_set_SIGCHLD_handler()
             self.worker_pids_set = True
 
             # prime the prefetch loop
