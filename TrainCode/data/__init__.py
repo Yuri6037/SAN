@@ -15,8 +15,12 @@ class Data:
 
         self.loader_train = None
         if not args.test_only:
-            module_train = import_module('data.' + args.data_train.lower())
-            trainset = getattr(module_train, args.data_train)(args)
+            try:
+                module_train = import_module('data.' + args.data_train.lower())
+                trainset = getattr(module_train, args.data_train)(args)
+            except:
+                module_train = import_module('data.custom')
+                trainset = getattr(module_train, 'Custom')(args)
             self.loader_train = MSDataLoader(
                 args,
                 trainset,
@@ -37,8 +41,12 @@ class Data:
                 )
 
         else:
-            module_test = import_module('data.' +  args.data_test.lower())
-            testset = getattr(module_test, args.data_test)(args, train=False)
+            try:
+                module_test = import_module('data.' +  args.data_test.lower())
+                testset = getattr(module_test, args.data_test)(args, train=False)
+            except:
+                module_test = import_module('data.custom')
+                testset = getattr(module_test, 'Custom')(args, train=False)
 
         self.loader_test = MSDataLoader(
             args,
