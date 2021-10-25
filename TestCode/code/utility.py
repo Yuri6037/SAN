@@ -214,6 +214,14 @@ def make_scheduler(args, my_optimizer):
 
     return scheduler
 
+def get_max_region_size(w, h):
+    val = math.gcd(w, h)
+    while val > 64:
+        val /= 2
+    if val < 8:
+        print("WARNING: The maximum region size is less than 8, this may lower the accuracy of this network.")
+    return val
+
 def image_decomposition(img, region_size):
     regions = []
     regions_x = int(img.shape[0] / region_size)
