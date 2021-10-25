@@ -17,10 +17,9 @@ class Custom(srdata.SRData):
             files = os.listdir(self.test_dir)
         for f in files:
             if self.train:
-                f = os.path.join(self.train_dir)
+                f = os.path.join(self.train_dir, f)
             else:
-                f = os.path.join(self.test_dir)
-            print(f)
+                f = os.path.join(self.test_dir, f)
             hr = cv2.imread(f)
             for (i, scale) in enumerate(self.scale):
                 lr = cv2.resize(hr, (int(hr.shape[1] / scale), int(hr.shape[0] / scale)),
