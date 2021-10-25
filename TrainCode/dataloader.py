@@ -116,8 +116,8 @@ class _MSDataLoaderIter(_SingleProcessDataLoaderIter):
             self.worker_pids_set = True
 
             # prime the prefetch loop
-            for _ in range(2 * self.num_workers):
-                self._put_indices()
+            #for _ in range(2 * self.num_workers):
+            #    self._put_indices()
 
 class MSDataLoader(DataLoader):
     def __init__(
