@@ -26,6 +26,7 @@ class Custom(srdata.SRData):
                                 interpolation=cv2.INTER_CUBIC)
                 list_lr[i].append(lr)
             list_hr.append(hr)
+        return list_hr, list_lr
 
     def _set_filesystem(self, dir_data):
         self.apath = dir_data
