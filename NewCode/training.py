@@ -43,11 +43,11 @@ class Trainer:
         self.val_set = val_set
         self.args.push()
         self.checkpoint = utility.Checkpoint(self.args)
-        self.args.pop()
         self.model = model.Model(self.args, self.checkpoint)
         self.loss = loss.Loss(args, self.checkpoint)
         self.optimizer = utility.make_optimizer(args, self.model)
         self.scheduler = utility.make_scheduler(args, self.optimizer)
+        self.args.pop()
 
         if self.args.load != '.':
             self.optimizer.load_state_dict(
