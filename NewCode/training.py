@@ -119,7 +119,7 @@ class Trainer:
 
                 timer_model.hold()
 
-                if batch % 1000 == 0:
+                if batch % 2 == 0:
                     self.checkpoint.write_log('[{}/?]\t{}\t{:.1f}+{:.1f}s'.format(
                         batch,
                         self.loss.display_loss(batch),
