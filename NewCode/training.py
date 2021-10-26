@@ -50,6 +50,7 @@ class Trainer:
         self.loss = loss.Loss(args, self.checkpoint)
         self.optimizer = utility.make_optimizer(args, self.model)
         self.scheduler = utility.make_scheduler(args, self.optimizer)
+        self.cache = {}
         self.args.pop()
 
         if self.args.load != '.':
@@ -61,7 +62,20 @@ class Trainer:
 
         self.error_last = 1e8
 
+        print("Precaching training set...")
+        self.precache(self.train_set)
+        print("Done!")
+        print("Precaching validation set...")
+        self.precache(self.val_set)
+        print("Done!")
+
+    def precache(self, path_list):
+        for path in path_list:
+            self.load_train_image(path)
+
     def load_train_image(self, path):
+        if path in self.cache:
+            return self.cache[path]
         hr = cv2.imread(path)
         lr = cv2.resize(hr, (int(hr.shape[1] / self.args.scale), int(hr.shape[0] / self.args.scale)),
                         interpolation=cv2.INTER_CUBIC)
@@ -69,7 +83,9 @@ class Trainer:
         lr = convert_to_pytorch(lr)
         regions_lr = convert_regions_to_pytorch(utility.image_decomposition(lr, region_size))
         regions_hr = convert_regions_to_pytorch(utility.image_decomposition(hr, region_size * self.args.scale))
-        return batch_decomposition(regions_lr, regions_hr, self.args.batch_size)
+        batches = batch_decomposition(regions_lr, regions_hr, self.args.batch_size)
+        self.cache[path] = batches
+        return batches
 
     def prepare(self, l):
         device = torch.device('cpu' if self.args.cpu else 'cuda')
