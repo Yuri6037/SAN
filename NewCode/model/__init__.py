@@ -4,6 +4,7 @@ from importlib import import_module
 import torch
 import torch.nn as nn
 
+
 class Model(nn.Module):
     def __init__(self, args, ckp):
         super(Model, self).__init__()
@@ -16,7 +17,7 @@ class Model(nn.Module):
         self.precision = args.precision
         self.cpu = args.cpu
         self.device = torch.device('cpu' if args.cpu else 'cuda')
-        if args.n_GPUs==1:
+        if args.n_GPUs == 1:
             os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
         self.n_GPUs = args.n_GPUs
@@ -69,7 +70,7 @@ class Model(nn.Module):
     def save(self, apath, epoch, is_best=False):
         target = self.get_model()
         torch.save(
-            target.state_dict(), 
+            target.state_dict(),
             os.path.join(apath, 'model', 'model_latest.pt')
         )
         if is_best:
@@ -77,7 +78,7 @@ class Model(nn.Module):
                 target.state_dict(),
                 os.path.join(apath, 'model', 'model_best.pt')
             )
-        
+
         if self.save_models:
             torch.save(
                 target.state_dict(),
@@ -189,4 +190,3 @@ class Model(nn.Module):
         output = output_cat.mean(dim=0, keepdim=True)
 
         return output
-
