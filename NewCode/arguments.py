@@ -33,7 +33,7 @@ class Arguments:
 
     def set_mode_upscale(self, scale, path):
         self.test_only = True
-        self.pre_train = os.path.join(path, "SAN_BI" + scale + "X.pt")
+        self.pre_train = os.path.join(path, "SAN_BI" + str(scale) + "X.pt")
         self.scale = scale
 
     def set_cpu(self):
