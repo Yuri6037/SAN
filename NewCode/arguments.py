@@ -14,7 +14,7 @@ class Arguments:
         self.cpu = False  # Always run on CUDA by default
         self.pre_train = ""
         self.scale = 2
-        self.load = "./save"
+        self.load = "."
         self.save = "./save"
         self.degradation = "BI"
         self.testset = "fuckyou"
