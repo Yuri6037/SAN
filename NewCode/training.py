@@ -152,7 +152,7 @@ class Trainer:
     def validate(self):
         epoch = self.scheduler.last_epoch + 1
         self.checkpoint.write_log('\nEvaluation:')
-        self.checkpoint.add_log(self.args.scale)
+        self.checkpoint.add_log(torch.zeros(1, 1))
         self.model.eval()
 
         timer_val = utility.Timer()
