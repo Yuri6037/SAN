@@ -14,8 +14,8 @@ class Arguments:
         self.cpu = False  # Always run on CUDA by default
         self.pre_train = ""
         self.scale = 2
-        self.load = "."
-        self.save = "."
+        self.load = "./save"
+        self.save = "./save"
         self.degradation = "BI"
         self.testset = "fuckyou"
         self.rgb_range = 255
@@ -30,6 +30,17 @@ class Arguments:
         self.batch_size = 8
         self.train_dir = ""
         self.val_dir = ""
+        self.skip_threshold = 1e6
+        self.loss = "1*L1"
+        self.optimizer = "ADAM"
+        self.epochs = 3000
+        self.lr_decay = 50
+        self.decay_type = "step"
+        self.gamma = 0.6
+        self.beta1 = 0.9
+        self.beta2 = 0.99
+        self.epsilon = 1e-8
+        self.weight_decay = 0
 
     def set_batch(self, batch):
         self.batch_size = batch

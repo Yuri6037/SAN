@@ -8,6 +8,7 @@ import numpy as np
 
 from arguments import Arguments
 
+
 def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
 
