@@ -1,7 +1,7 @@
 # Deep Back-Projection Networks For Super-Resolution
 # https://arxiv.org/abs/1803.02735
 
-from model import common
+import common
 
 import torch
 import torch.nn as nn
