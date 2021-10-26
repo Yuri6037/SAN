@@ -80,10 +80,9 @@ class Trainer:
         return [_prepare(_l) for _l in l]
 
     def train(self):
-        self.scheduler.step()
         self.loss.step()
         epoch = self.scheduler.last_epoch + 1
-        lr = self.scheduler.get_lr()[0]
+        lr = self.scheduler.get_last_lr()[0]
 
         self.checkpoint.write_log(
             '[Epoch {}]\tLearning rate: {:.2e}'.format(epoch, Decimal(lr))
@@ -127,6 +126,7 @@ class Trainer:
 
         self.loss.end_log(batch)
         self.error_last = self.loss.log[-1, -1]
+        self.scheduler.step()
 
     def validate(self):
         epoch = self.scheduler.last_epoch + 1
