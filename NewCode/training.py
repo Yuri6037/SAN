@@ -198,7 +198,7 @@ def run(args: Arguments):
         train_set.append(os.path.join(args.train_dir, f))
     files = os.listdir(args.val_dir)
     for f in files:
-        val_set.append(os.path.join(args.train_dir, f))
+        val_set.append(os.path.join(args.val_dir, f))
     trainer = Trainer(args, train_set, val_set)
     for _ in range(0, args.epochs):
         trainer.train()
