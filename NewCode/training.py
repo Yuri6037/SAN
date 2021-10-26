@@ -175,5 +175,6 @@ def run(args: Arguments):
     for f in files:
         val_set.append(os.path.join(args.train_dir, f))
     trainer = Trainer(args, train_set, val_set)
-
-    pass
+    for _ in range(0, args.epochs):
+        trainer.train()
+        trainer.validate()

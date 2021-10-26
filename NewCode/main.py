@@ -1,6 +1,7 @@
 import argparse
 
 import upscale
+import training
 
 from arguments import Arguments
 
@@ -27,6 +28,8 @@ def main():
     args.set_batch(cmd.batch)
     if cmd.upscale:
         upscale.run(args, cmd.image)
+    elif cmd.train:
+        training.run(args)
     print("I ran successfully!")
 
 
