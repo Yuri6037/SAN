@@ -6,34 +6,7 @@ import cv2
 import torch
 import numpy as np
 
-
-class PregenArgs:
-    def __init__(self):
-        self.model = "san"
-        self.n_resgroups = 20
-        self.n_resblocks = 10
-        self.n_feats = 64
-        self.reset = True
-        self.chop = True
-        self.test_only = True
-        self.precision = "single"
-        self.cpu = False  # Always run on CUDA
-        self.pre_train = ""
-        self.scale = 2
-        self.load = "."
-        self.save = "."
-        self.degradation = "BI"
-        self.testset = "fuckyou"
-        self.rgb_range = 255
-        self.self_ensemble = False
-        self.n_GPUs = 1
-        self.save_models = False
-        self.resume = 0
-        self.reduction = 16
-        self.n_colors = 3
-        self.res_scale = 1
-        self.print_model = False
-
+from arguments import Arguments
 
 def prepare(args, l):
     device = torch.device('cpu' if args.cpu else 'cuda')
@@ -67,7 +40,7 @@ def inline_reconstruct_array(regions):
     return lst
 
 
-def run(args, path, batch):
+def run(args: Arguments, path: str):
     img = cv2.imread(path)
     name = os.path.basename(path)
     region_size = utility.get_max_region_size(img.shape[0], img.shape[1])
@@ -78,7 +51,7 @@ def run(args, path, batch):
 
     # Upscale with SAN
     print("Loading model...")
-    args.scale = [args.scale]
+    idx_scale = args.push()
     ckpt = utility.Checkpoint(args)
     mdl = model.Model(args, ckpt)
     print("Upscaling single image...")
@@ -89,17 +62,18 @@ def run(args, path, batch):
     regions = np.stack(regions, axis=0)
     print("LR Decomposed: %s" % str(regions.shape))
     lst = []
-    for LR_Batch in np.array_split(regions, int(regions.shape[0] / batch) + 1, axis=0):
+    for LR_Batch in np.array_split(regions, int(regions.shape[0] / args.batch_size) + 1, axis=0):
         print(LR_Batch.shape)
         LR_Batch = prepare(args, [LR_Batch])[0]
-        HR_Batch = mdl(LR_Batch, 0)
+        HR_Batch = mdl(LR_Batch, idx_scale)
         HR_Batch = utility.quantize(HR_Batch, args.rgb_range)
         lst.append(HR_Batch.detach().cpu().numpy())
+    args.pop()
     regions = np.concatenate(lst, axis=0)
     print("HR Decomposed: %s" % str(regions.shape))
     regions = inline_reconstruct_array(regions)
-    HR_Image = np.zeros((img.shape[0] * args.scale[0], img.shape[1] * args.scale[0], 3), np.uint8)
-    HR_Image = utility.image_recomposition(HR_Image, region_size * args.scale[0], regions)
+    HR_Image = np.zeros((img.shape[0] * args.scale, img.shape[1] * args.scale, 3), np.uint8)
+    HR_Image = utility.image_recomposition(HR_Image, region_size * args.scale, regions)
     print("HR: %s" % str(HR_Image.shape))
     HR_Image = HR_Image.astype(np.uint8)
     HR_Image = cv2.cvtColor(HR_Image, cv2.COLOR_RGB2BGR)
@@ -107,20 +81,3 @@ def run(args, path, batch):
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-
-def main():
-    parser = argparse.ArgumentParser(description='Upscale single image')
-    parser.add_argument('--scale', default='2', choices=['2', '3', '4', '8'], help='super resolution scale')
-    parser.add_argument('--image', type=str, help="image path")
-    parser.add_argument('--batch', type=int, default=8, help="image batch size")
-    parser.add_argument('--model-path', type=str, help="path to the model .pt files")
-    cmd = parser.parse_args()
-    args = PregenArgs()
-    args.pre_train = os.path.join(cmd.model_path, "SAN_BI" + cmd.scale + "X.pt")
-    args.scale = int(cmd.scale)
-    run(args, cmd.image, cmd.batch)
-    print("I ran successfully!")
-
-
-main()
