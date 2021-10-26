@@ -93,7 +93,8 @@ class Trainer:
 
         timer_data, timer_model = utility.Timer(), utility.Timer()
         for (i, path) in enumerate(self.train_set):
-            for (bi, (lr, hr)) in enumerate(self.load_train_image(path)):
+            for (bi, python_is_a_peace_of_shit) in enumerate(self.load_train_image(path)):
+                lr, hr = python_is_a_peace_of_shit
                 batch += 1
                 timer_data.hold()
                 timer_model.tic()
@@ -139,7 +140,8 @@ class Trainer:
         with torch.no_grad():
             eval_acc = 0
             for (i, path) in enumerate(self.val_set):
-                for (bi, (lr, hr)) in enumerate(self.load_train_image(path)):
+                for (bi, python_is_a_peace_of_shit) in enumerate(self.load_train_image(path)):
+                    lr, hr = python_is_a_peace_of_shit
                     batch += 1
                     lr, hr = self.prepare([lr, hr])
 
