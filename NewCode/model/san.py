@@ -1,12 +1,14 @@
-from model import common
+import common
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from model.MPNCOV.python import MPNCOV
+import MPNCOV
+
 
 #
 def make_model(args, parent=False):
     return SAN(args)
+
 
 ## non_local module
 class _NonLocalBlockND(nn.Module):
@@ -103,7 +105,7 @@ class _NonLocalBlockND(nn.Module):
         return output
 
     def _embedded_gaussian(self, x):
-        batch_size,C,H,W = x.shape
+        batch_size, C, H, W = x.shape
 
         # x_sub = self.sub_bilinear(x) # bilinear downsample
         # x_sub = self.sub_maxpool(x) # maxpool downsample
@@ -244,9 +246,6 @@ class NONLocalBlock2D(_NonLocalBlockND):
                                               bn_layer=bn_layer)
 
 
-
-
-
 ## Channel Attention (CA) Layer
 class CALayer(nn.Module):
     def __init__(self, channel, reduction=8):
@@ -256,15 +255,15 @@ class CALayer(nn.Module):
         self.max_pool = nn.AdaptiveMaxPool2d(1)
         # feature channel downscale and upscale --> channel weight
         self.conv_du = nn.Sequential(
-                nn.Conv2d(channel, channel // reduction, 1, padding=0, bias=True),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(channel // reduction, channel, 1, padding=0, bias=True),
-                # nn.Sigmoid()
-                # nn.BatchNorm2d(channel)
+            nn.Conv2d(channel, channel // reduction, 1, padding=0, bias=True),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(channel // reduction, channel, 1, padding=0, bias=True),
+            # nn.Sigmoid()
+            # nn.BatchNorm2d(channel)
         )
 
     def forward(self, x):
-        _,_,h,w = x.shape
+        _, _, h, w = x.shape
         y_ave = self.avg_pool(x)
         # y_max = self.max_pool(x)
         y_ave = self.conv_du(y_ave)
@@ -273,7 +272,6 @@ class CALayer(nn.Module):
         # expand y to C*H*W
         # expand_y = y.expand(-1,-1,h,w)
         return y_ave
-
 
 
 ## second-order Channel attention (SOCA)
@@ -323,11 +321,12 @@ class SOCA(nn.Module):
         # x_sub = self.max_pool(x)
         ##
         ## MPN-COV
-        cov_mat = MPNCOV.CovpoolLayer(x_sub) # Global Covariance pooling layer
-        cov_mat_sqrt = MPNCOV.SqrtmLayer(cov_mat,5) # Matrix square root layer( including pre-norm,Newton-Schulz iter. and post-com. with 5 iteration)
+        cov_mat = MPNCOV.CovpoolLayer(x_sub)  # Global Covariance pooling layer
+        cov_mat_sqrt = MPNCOV.SqrtmLayer(cov_mat,
+                                         5)  # Matrix square root layer( including pre-norm,Newton-Schulz iter. and post-com. with 5 iteration)
         ##
-        cov_mat_sum = torch.mean(cov_mat_sqrt,1)
-        cov_mat_sum = cov_mat_sum.view(batch_size,C,1,1)
+        cov_mat_sum = torch.mean(cov_mat_sqrt, 1)
+        cov_mat_sum = cov_mat_sum.view(batch_size, C, 1, 1)
         # y_ave = self.avg_pool(x)
         # y_max = self.max_pool(x)
         y_cov = self.conv_du(cov_mat_sum)
@@ -335,23 +334,24 @@ class SOCA(nn.Module):
         # y = y_ave + y_max
         # expand y to C*H*W
         # expand_y = y.expand(-1,-1,h,w)
-        return y_cov*x
-
+        return y_cov * x
 
 
 ## self-attention+ channel attention module
 class Nonlocal_CA(nn.Module):
-    def __init__(self, in_feat=64, inter_feat=32, reduction=8,sub_sample=False, bn_layer=True):
+    def __init__(self, in_feat=64, inter_feat=32, reduction=8, sub_sample=False, bn_layer=True):
         super(Nonlocal_CA, self).__init__()
         # second-order channel attention
-        self.soca=SOCA(in_feat, reduction=reduction)
+        self.soca = SOCA(in_feat, reduction=reduction)
         # nonlocal module
-        self.non_local = (NONLocalBlock2D(in_channels=in_feat,inter_channels=inter_feat, sub_sample=sub_sample,bn_layer=bn_layer))
+        self.non_local = (
+            NONLocalBlock2D(in_channels=in_feat, inter_channels=inter_feat, sub_sample=sub_sample, bn_layer=bn_layer))
 
         self.sigmoid = nn.Sigmoid()
-    def forward(self,x):
+
+    def forward(self, x):
         ## divide feature map into 4 part
-        batch_size,C,H,W = x.shape
+        batch_size, C, H, W = x.shape
         H1 = int(H / 2)
         W1 = int(W / 2)
         nonlocal_feat = torch.zeros_like(x)
@@ -360,7 +360,6 @@ class Nonlocal_CA(nn.Module):
         feat_sub_ld = x[:, :, H1:, :W1]
         feat_sub_ru = x[:, :, :H1, W1:]
         feat_sub_rd = x[:, :, H1:, W1:]
-
 
         nonlocal_lu = self.non_local(feat_sub_lu)
         nonlocal_ld = self.non_local(feat_sub_ld)
@@ -371,12 +370,13 @@ class Nonlocal_CA(nn.Module):
         nonlocal_feat[:, :, :H1, W1:] = nonlocal_ru
         nonlocal_feat[:, :, H1:, W1:] = nonlocal_rd
 
-        return  nonlocal_feat
+        return nonlocal_feat
 
 
 ## Residual  Block (RB)
 class RB(nn.Module):
-    def __init__(self, conv, n_feat, kernel_size, reduction, bias=True, bn=False, act=nn.ReLU(inplace=True), res_scale=1, dilation=2):
+    def __init__(self, conv, n_feat, kernel_size, reduction, bias=True, bn=False, act=nn.ReLU(inplace=True),
+                 res_scale=1, dilation=2):
         super(RB, self).__init__()
         modules_body = []
 
@@ -385,13 +385,10 @@ class RB(nn.Module):
         # self.salayer = SALayer(n_feat, reduction=reduction, dilation=dilation)
         # self.salayer = SALayer2(n_feat, reduction=reduction, dilation=dilation)
 
-
-
         self.conv_first = nn.Sequential(conv(n_feat, n_feat, kernel_size, bias=bias),
                                         act,
                                         conv(n_feat, n_feat, kernel_size, bias=bias)
                                         )
-
 
         self.res_scale = res_scale
 
@@ -401,14 +398,16 @@ class RB(nn.Module):
 
         return y
 
+
 ## Local-source Residual Attention Group (LSRARG)
 class LSRAG(nn.Module):
     def __init__(self, conv, n_feat, kernel_size, reduction, act, res_scale, n_resblocks):
         super(LSRAG, self).__init__()
         ##
-        self.rcab= nn.ModuleList([RB(conv, n_feat, kernel_size, reduction, \
-                                       bias=True, bn=False, act=nn.ReLU(inplace=True), res_scale=1) for _ in range(n_resblocks)])
-        self.soca = (SOCA(n_feat,reduction=reduction))
+        self.rcab = nn.ModuleList([RB(conv, n_feat, kernel_size, reduction, \
+                                      bias=True, bn=False, act=nn.ReLU(inplace=True), res_scale=1) for _ in
+                                   range(n_resblocks)])
+        self.soca = (SOCA(n_feat, reduction=reduction))
         self.conv_last = (conv(n_feat, n_feat, kernel_size))
         self.n_resblocks = n_resblocks
         ##
@@ -439,7 +438,7 @@ class LSRAG(nn.Module):
 
         ## share-source skip connection
 
-        for i,l in enumerate(self.rcab):
+        for i, l in enumerate(self.rcab):
             # x = l(x) + self.gamma*residual
             x = l(x)
         x = self.soca(x)
@@ -450,6 +449,7 @@ class LSRAG(nn.Module):
         return x
         ##
 
+
 ## Second-order Channel Attention Network (SAN)
 class SAN(nn.Module):
     def __init__(self, args, conv=common.default_conv):
@@ -458,10 +458,10 @@ class SAN(nn.Module):
         n_resblocks = args.n_resblocks
         n_feats = args.n_feats
         kernel_size = 3
-        reduction = args.reduction 
+        reduction = args.reduction
         scale = args.scale[0]
         act = nn.ReLU(inplace=True)
-        
+
         # RGB mean for DIV2K
         rgb_mean = (0.4488, 0.4371, 0.4040)
         rgb_std = (1.0, 1.0, 1.0)
@@ -479,7 +479,8 @@ class SAN(nn.Module):
         # self.gamma = 0.2
         self.n_resgroups = n_resgroups
         self.RG = nn.ModuleList([LSRAG(conv, n_feats, kernel_size, reduction, \
-                                              act=act, res_scale=args.res_scale, n_resblocks=n_resblocks) for _ in range(n_resgroups)])
+                                       act=act, res_scale=args.res_scale, n_resblocks=n_resblocks) for _ in
+                                 range(n_resgroups)])
         self.conv_last = conv(n_feats, n_feats, kernel_size)
 
         # modules_body = [
@@ -488,20 +489,18 @@ class SAN(nn.Module):
         #     for _ in range(n_resgroups)]
         # modules_body.append(conv(n_feats, n_feats, kernel_size))
 
-
         # define tail module
         modules_tail = [
             common.Upsampler(conv, scale, n_feats, act=False),
             conv(n_feats, args.n_colors, kernel_size)]
 
         self.add_mean = common.MeanShift(args.rgb_range, rgb_mean, rgb_std, 1)
-        self.non_local = Nonlocal_CA(in_feat=n_feats, inter_feat=n_feats//8, reduction=8,sub_sample=False, bn_layer=False)
-
+        self.non_local = Nonlocal_CA(in_feat=n_feats, inter_feat=n_feats // 8, reduction=8, sub_sample=False,
+                                     bn_layer=False)
 
         self.head = nn.Sequential(*modules_head)
         # self.body = nn.Sequential(*modules_body)
         self.tail = nn.Sequential(*modules_tail)
-
 
     def make_layer(self, block, num_of_layer):
         layers = []
@@ -524,8 +523,8 @@ class SAN(nn.Module):
         # res = self.RG(xx)
         # res = res + xx
         ## share-source residual gruop
-        for i,l in enumerate(self.RG):
-            xx = l(xx) + self.gamma*residual
+        for i, l in enumerate(self.RG):
+            xx = l(xx) + self.gamma * residual
             # xx = self.gamma*xx + residual
         # body part
         # res = self.body(xx)
@@ -540,7 +539,7 @@ class SAN(nn.Module):
         x = self.tail(res)
         x = self.add_mean(x)
 
-        return x 
+        return x
 
     def load_state_dict(self, state_dict, strict=False):
         own_state = self.state_dict()
