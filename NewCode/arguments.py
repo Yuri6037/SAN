@@ -34,6 +34,7 @@ class Arguments:
         self.loss = "1*L1"
         self.optimizer = "ADAM"
         self.epochs = 3000
+        self.lr = 1e-4
         self.lr_decay = 50
         self.decay_type = "step"
         self.gamma = 0.6
