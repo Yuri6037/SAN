@@ -29,7 +29,7 @@ def batch_decomposition(regions_lr, regions_hr, batch_size):
     while len(regions_lr) > 0:
         lr = regions_lr.pop(0)
         hr = regions_hr.pop(0)
-        batch.append((lr, hr))
+        batch.append([lr, hr])
         if len(batch) >= batch_size:
             batches.append(batch)
             batch = []
@@ -94,7 +94,6 @@ class Trainer:
         timer_data, timer_model = utility.Timer(), utility.Timer()
         for (i, path) in enumerate(self.train_set):
             for (bi, python_is_a_peace_of_shit) in enumerate(self.load_train_image(path)):
-                print(python_is_a_peace_of_shit)
                 lr, hr = python_is_a_peace_of_shit
                 batch += 1
                 timer_data.hold()
