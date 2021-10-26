@@ -55,7 +55,7 @@ class Arguments:
 
     def set_mode_train(self, scale, train_dir, val_dir):
         self.test_only = False
-        self.pre_train = None
+        self.pre_train = "."
         self.scale = scale
         self.train_dir = train_dir
         self.val_dir = val_dir
