@@ -94,6 +94,7 @@ class Trainer:
         timer_data, timer_model = utility.Timer(), utility.Timer()
         for (i, path) in enumerate(self.train_set):
             for (bi, python_is_a_peace_of_shit) in enumerate(self.load_train_image(path)):
+                print(python_is_a_peace_of_shit)
                 lr, hr = python_is_a_peace_of_shit
                 batch += 1
                 timer_data.hold()
