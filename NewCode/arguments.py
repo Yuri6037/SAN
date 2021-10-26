@@ -1,5 +1,6 @@
 import os
 
+
 class Arguments:
     def __init__(self):
         self.model = "san"
@@ -27,6 +28,8 @@ class Arguments:
         self.res_scale = 1
         self.print_model = False
         self.batch_size = 8
+        self.train_dir = ""
+        self.val_dir = ""
 
     def set_batch(self, batch):
         self.batch_size = batch
@@ -39,10 +42,12 @@ class Arguments:
     def set_cpu(self):
         self.cpu = True
 
-    def set_mode_train(self, scale):
+    def set_mode_train(self, scale, train_dir, val_dir):
         self.test_only = False
         self.pre_train = None
         self.scale = scale
+        self.train_dir = train_dir
+        self.val_dir = val_dir
 
     def push(self):
         self.scale = [self.scale]

@@ -21,7 +21,7 @@ def main():
     if cmd.upscale:
         args.set_mode_upscale(int(cmd.scale), cmd.model_path)
     elif cmd.train:
-        args.set_mode_train(int(cmd.scale))
+        args.set_mode_train(int(cmd.scale), cmd.train_dir, cmd.val_dir)
     if cmd.cpu:
         args.set_cpu()
     args.set_batch(cmd.batch)
