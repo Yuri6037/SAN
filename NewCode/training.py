@@ -8,7 +8,7 @@ import os
 import cv2
 import numpy as np
 
-from skimage.metrics import peak_signal_noise_ratio, structural_similarity
+from skimage.metrics import peak_signal_noise_ratio
 
 
 def convert_regions_to_pytorch(regions):
@@ -25,14 +25,17 @@ def convert_to_pytorch(img):
 
 def batch_decomposition(regions_lr, regions_hr, batch_size):
     batches = []
-    batch = []
+    batch_lr = []
+    batch_hr = []
     while len(regions_lr) > 0:
         lr = regions_lr.pop(0)
         hr = regions_hr.pop(0)
-        batch.append([lr, hr])
-        if len(batch) >= batch_size:
-            batches.append(batch)
-            batch = []
+        batch_lr.append(lr)
+        batch_hr.append(hr)
+        if len(batch_lr) >= batch_size:
+            batches.append([np.stack(batch_lr, axis=0), np.stack(batch_hr, axis=0)])
+            batch_lr = []
+            batch_hr = []
     return batches
 
 
