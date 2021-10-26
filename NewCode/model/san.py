@@ -1,4 +1,4 @@
-from . import common
+from model import common
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
