@@ -41,7 +41,9 @@ class Trainer:
         self.args = args
         self.train_set = train_set
         self.val_set = val_set
+        self.args.push()
         self.checkpoint = utility.Checkpoint(self.args)
+        self.args.pop()
         self.model = model.Model(self.args, self.checkpoint)
         self.loss = loss.Loss(args, self.checkpoint)
         self.optimizer = utility.make_optimizer(args, self.model)
