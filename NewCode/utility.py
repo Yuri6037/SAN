@@ -48,10 +48,11 @@ class Checkpoint:
         now = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
 
         if args.load == '.':
-            if args.save == '.': args.save = now
-            self.dir = '../SR/' + args.degradation + '/' + args.save
+            if args.save == '.':
+                args.save = now
+            self.dir = './experiment/' + args.save
         else:
-            self.dir = '../experiment/' + args.load
+            self.dir = './experiment/' + args.load
             if not os.path.exists(self.dir):
                 args.load = '.'
             else:
@@ -68,6 +69,7 @@ class Checkpoint:
         _make_dir(self.dir)
 
         _make_dir(self.dir + '/' + args.testset + '/x' + str(args.scale[0]))
+        _make_dir(self.dir + '/model')
 
         open_type = 'a' if os.path.exists(self.dir + '/log.txt') else 'w'
         self.log_file = open(self.dir + '/log.txt', open_type)

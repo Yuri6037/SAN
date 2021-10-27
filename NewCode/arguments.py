@@ -15,7 +15,7 @@ class Arguments:
         self.pre_train = ""
         self.scale = 2
         self.load = "."
-        self.save = "./save"
+        self.save = "save"
         self.degradation = "BI"
         self.testset = "fuckyou"
         self.rgb_range = 255
