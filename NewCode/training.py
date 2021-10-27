@@ -171,7 +171,7 @@ class Trainer:
                     sr = utility.quantize(sr, self.args.rgb_range)
                     self.args.pop()
 
-                    eval_acc += peak_signal_noise_ratio(hr, sr)
+                    eval_acc += utility.calc_psnr(sr, hr, self.args.scale, self.args.rgb_range)
 
                 self.checkpoint.log[-1, 0] = eval_acc / batch
                 best = self.checkpoint.log.max(0)
