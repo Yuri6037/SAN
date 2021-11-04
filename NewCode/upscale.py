@@ -77,7 +77,8 @@ def run(args: Arguments, path: str):
     HR_Image = utility.image_recomposition(HR_Image, region_size * args.scale, regions)
     print("HR: %s" % str(HR_Image.shape))
     HR_Image = HR_Image.astype(np.uint8)
-    HR_Image = cv2.cvtColor(HR_Image, cv2.COLOR_RGB2BGR)
+    if not args.use_bgr:
+        HR_Image = cv2.cvtColor(HR_Image, cv2.COLOR_RGB2BGR)
     cv2.imwrite("./result/san/" + name, HR_Image)
 
     cv2.waitKey(0)

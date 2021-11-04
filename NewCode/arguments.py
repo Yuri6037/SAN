@@ -3,6 +3,7 @@ import os
 
 class Arguments:
     def __init__(self):
+        self.use_bgr = False
         self.model = "san"
         self.n_resgroups = 20
         self.n_resblocks = 10
@@ -53,6 +54,9 @@ class Arguments:
 
     def set_cpu(self):
         self.cpu = True
+
+    def set_use_bgr(self):
+        self.use_bgr = True
 
     def set_mode_train(self, scale, train_dir, val_dir):
         self.test_only = False

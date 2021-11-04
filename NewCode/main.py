@@ -10,6 +10,7 @@ def main():
     parser = argparse.ArgumentParser(description='SAN network')
     parser.add_argument('--upscale', help="Upscale single image", action='store_true')
     parser.add_argument('--cpu', help="Use CPU", action='store_true')
+    parser.add_argument('--use-bgr', help="Consider image to already be in BGR format when testing", action='store_true')
     parser.add_argument('--train', help="Start training", action='store_true')
     parser.add_argument('--train-dir', type=str, help="image path")
     parser.add_argument('--val-dir', type=str, help="image path")
@@ -19,6 +20,8 @@ def main():
     parser.add_argument('--model-path', type=str, help="path to the model .pt files")
     cmd = parser.parse_args()
     args = Arguments()
+    if cmd.use_bgr:
+        args.set_use_bgr()
     if cmd.upscale:
         args.set_mode_upscale(int(cmd.scale), cmd.model_path)
     elif cmd.train:
