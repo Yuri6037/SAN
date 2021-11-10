@@ -46,10 +46,6 @@ def run(args: Arguments, path: str):
     name = os.path.basename(path)
     region_size = utility.get_max_region_size(img.shape[0], img.shape[1])
 
-    # Upscale with Bicubic
-    bicubic_image = cv2.resize(img, None, fx=args.scale, fy=args.scale, interpolation=cv2.INTER_CUBIC)
-    cv2.imwrite("./result/bicubic/" + name, bicubic_image)
-
     # Upscale with SAN
     print("Loading model...")
     idx_scale = args.push()
