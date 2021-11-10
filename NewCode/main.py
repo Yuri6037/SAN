@@ -25,6 +25,8 @@ def main():
     if cmd.upscale:
         args.set_mode_upscale(int(cmd.scale), cmd.model_path)
     elif cmd.train:
+        if cmd.model_path:
+            args.set_resume_learning(int(cmd.scale), cmd.model_path)
         args.set_mode_train(int(cmd.scale), cmd.train_dir, cmd.val_dir)
     if cmd.cpu:
         args.set_cpu()

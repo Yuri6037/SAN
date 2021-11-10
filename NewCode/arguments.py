@@ -43,6 +43,11 @@ class Arguments:
         self.beta2 = 0.99
         self.epsilon = 1e-8
         self.weight_decay = 0
+        self.resume_learning = None
+
+    def set_resume_learning(self, scale, path):
+        self.lr = 1e-5
+        self.resume_learning = os.path.join(path, "SAN_BI" + str(scale) + "X.pt")
 
     def set_batch(self, batch):
         self.batch_size = batch

@@ -47,6 +47,8 @@ class Trainer:
         self.args.push()
         self.checkpoint = utility.Checkpoint(self.args)
         self.model = model.Model(self.args, self.checkpoint)
+        if args.resume_learning is not None:
+            self.model.load("", args.resume_learning, 0)
         self.loss = loss.Loss(args, self.checkpoint)
         self.optimizer = utility.make_optimizer(args, self.model)
         self.scheduler = utility.make_scheduler(args, self.optimizer)
