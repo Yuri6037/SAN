@@ -63,10 +63,8 @@ class Trainer:
         self.error_last = 1e8
 
         print("Precaching training set...")
-        self.precache(self.train_set)
         print("Done!")
         print("Precaching validation set...")
-        self.precache(self.val_set)
         print("Done!")
 
     def precache(self, path_list):
