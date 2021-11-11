@@ -17,8 +17,9 @@ def convert_regions_to_pytorch(regions):
     return regions
 
 
-def convert_to_pytorch(img):
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+def convert_to_pytorch(use_bgr, img):
+    if not use_bgr:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = img.astype('float32')
     return img
 
@@ -80,7 +81,7 @@ class Trainer:
         lr = cv2.resize(hr, (int(hr.shape[1] / self.args.scale), int(hr.shape[0] / self.args.scale)),
                         interpolation=cv2.INTER_CUBIC)
         region_size = utility.get_max_region_size(lr.shape[0], lr.shape[1])
-        lr = convert_to_pytorch(lr)
+        lr = convert_to_pytorch(self.args.use_bgr, lr)
         regions_lr = convert_regions_to_pytorch(utility.image_decomposition(lr, region_size))
         regions_hr = convert_regions_to_pytorch(utility.image_decomposition(hr, region_size * self.args.scale))
         batches = batch_decomposition(regions_lr, regions_hr, self.args.batch_size)
