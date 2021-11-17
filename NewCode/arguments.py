@@ -46,7 +46,7 @@ class Arguments:
         self.resume_learning = None
 
     def set_resume_learning(self, scale, path):
-        self.lr = 1e-5
+        self.lr = 1e-8
         self.resume_learning = os.path.join(path, "SAN_BI" + str(scale) + "X.pt")
 
     def set_batch(self, batch):

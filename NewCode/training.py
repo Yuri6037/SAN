@@ -65,11 +65,6 @@ class Trainer:
 
         self.error_last = 1e8
 
-        print("Precaching training set...")
-        print("Done!")
-        print("Precaching validation set...")
-        print("Done!")
-
     def precache(self, path_list):
         for path in path_list:
             self.load_train_image(path)
