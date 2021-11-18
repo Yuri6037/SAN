@@ -1,10 +1,20 @@
-from ..model import common
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
-from torch.autograd import Variable
+
+
+# Code duplication is needed due to garbage peace of shit nightmare fucking python relative import restriction
+class MeanShift(nn.Conv2d):
+    def __init__(self, rgb_range, rgb_mean, rgb_std, sign=-1):
+        super(MeanShift, self).__init__(3, 3, kernel_size=1)
+        std = torch.Tensor(rgb_std)
+        self.weight.data = torch.eye(3).view(3, 3, 1, 1)
+        self.weight.data.div_(std.view(3, 1, 1, 1))
+        self.bias.data = sign * rgb_range * torch.Tensor(rgb_mean)
+        self.bias.data.div_(std)
+        self.requires_grad = False
+
 
 class VGG(nn.Module):
     def __init__(self, conv_index, rgb_range=1):
@@ -18,7 +28,7 @@ class VGG(nn.Module):
 
         vgg_mean = (0.485, 0.456, 0.406)
         vgg_std = (0.229 * rgb_range, 0.224 * rgb_range, 0.225 * rgb_range)
-        self.sub_mean = common.MeanShift(rgb_range, vgg_mean, vgg_std)
+        self.sub_mean = MeanShift(rgb_range, vgg_mean, vgg_std)
         self.vgg.requires_grad = False
 
     def forward(self, sr, hr):
