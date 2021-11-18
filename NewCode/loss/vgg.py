@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Code duplication is needed due to garbage peace of shit nightmare fucking python relative import restriction
 class MeanShift(nn.Conv2d):
@@ -39,7 +40,7 @@ class VGG(nn.Module):
             
         vgg_sr = _forward(sr)
         with torch.no_grad():
-            vgg_hr = _forward(hr.detach())
+            vgg_hr = _forward(hr.detach().to(device, dtype=torch.float32))
 
         loss = F.mse_loss(vgg_sr, vgg_hr)
 
