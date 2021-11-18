@@ -48,7 +48,7 @@ class Arguments:
     def set_resume_learning(self, scale, path):
         self.lr = 1e-5
         self.lr_decay = 5000
-        self.loss = "1*VGG22"  # Attempt to use a vgg19 network as loss function
+        self.loss = "1*CX"  # Attempt to use contextual loss https://arxiv.org/abs/1803.04626
         self.resume_learning = os.path.join(path, "SAN_BI" + str(scale) + "X.pt")
 
     def set_batch(self, batch):
