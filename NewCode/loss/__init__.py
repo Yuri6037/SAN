@@ -27,7 +27,7 @@ class Loss(nn.modules.loss._Loss):
                 module = import_module('loss.gradient_loss')
                 loss_function = getattr(module, 'gradient_loss')()
             elif loss_type == "CX":
-                module = import_module('myvgg.py')
+                module = import_module('loss.myvgg')
                 loss_function = getattr(module, 'MyVGG')()
             elif loss_type.find('VGG') >= 0:
                 #module = import_module('loss.vgg')
