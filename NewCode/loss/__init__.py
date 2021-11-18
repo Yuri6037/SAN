@@ -4,6 +4,8 @@ from importlib import import_module
 import torch
 import torch.nn as nn
 
+from . import vgg
+
 class Loss(nn.modules.loss._Loss):
     def __init__(self, args, ckp):
         super(Loss, self).__init__()
@@ -25,8 +27,12 @@ class Loss(nn.modules.loss._Loss):
                 module = import_module('loss.gradient_loss')
                 loss_function = getattr(module, 'gradient_loss')()
             elif loss_type.find('VGG') >= 0:
-                module = import_module('loss.vgg')
-                loss_function = getattr(module, 'VGG')(
+                #module = import_module('loss.vgg')
+                #loss_function = getattr(module, 'VGG')(
+                #    loss_type[3:],
+                #    rgb_range=args.rgb_range
+                #)
+                loss_function = vgg.VGG(
                     loss_type[3:],
                     rgb_range=args.rgb_range
                 )
