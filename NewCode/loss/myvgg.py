@@ -19,5 +19,5 @@ class MyVGG(nn.Module):
         sr_features = self.vgg(sr)
         hr_features = self.vgg(hr)
         loss = CX_distance.CX_loss(hr_features, sr_features)
-        print(loss.size())
+        loss = torch.mean(loss)  # Apparently the github implementation of CX is broken/defective it returns a tensor instead of a scalar
         return loss
