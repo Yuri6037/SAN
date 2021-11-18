@@ -19,4 +19,5 @@ class MyVGG(nn.Module):
         sr_features = self.vgg(sr)
         hr_features = self.vgg(hr)
         loss = CX_distance.CX_loss(hr_features, sr_features)
+        print(loss.size())
         return loss
