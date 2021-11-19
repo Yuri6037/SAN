@@ -29,6 +29,9 @@ class Loss(nn.modules.loss._Loss):
             elif loss_type == "CX":
                 module = import_module('loss.myvgg')
                 loss_function = getattr(module, 'MyVGG')()
+            elif loss_type == "MS-SSIM":
+                module = import_module('loss.msssim')
+                loss_function = getattr(module, 'MSSSIM')()
             elif loss_type.find('VGG') >= 0:
                 #module = import_module('loss.vgg')
                 #loss_function = getattr(module, 'VGG')(
