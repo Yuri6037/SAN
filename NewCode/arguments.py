@@ -48,7 +48,7 @@ class Arguments:
     def set_resume_learning(self, scale, path):
         self.lr = 1e-5
         self.lr_decay = 5000
-        self.loss = "1*MSSSIM"  # Now attemoting MS-SSIM based loss
+        self.loss = "1*MS-SSIM"  # Now attemoting MS-SSIM based loss
         self.resume_learning = os.path.join(path, "SAN_BI" + str(scale) + "X.pt")
 
     def set_batch(self, batch):
