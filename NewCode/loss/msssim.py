@@ -12,5 +12,5 @@ class MSSSIM(nn.Module):
             sr = torch.div(sr, 255.0) # normalize tensor if not already
         hr = hr.to(self.device, dtype=torch.float32)
         hr = torch.div(hr, 255.0) # normalize tensor
-        loss = 1 - ms_ssim(sr, hr, data_range=255, size_average=True)
+        loss = 1 - ssim(sr, hr, data_range=255, size_average=True)
         return loss
