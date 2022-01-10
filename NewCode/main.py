@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--image', type=str, help="image path")
     parser.add_argument('--batch', type=int, default=8, help="image batch size")
     parser.add_argument('--model-path', type=str, help="path to the model .pt files")
+    parser.add_argument('--epochs', type=int, default=20, help='number of epochs for training')
     cmd = parser.parse_args()
     args = Arguments()
     if cmd.use_bgr:
@@ -26,8 +27,8 @@ def main():
         args.set_mode_upscale(int(cmd.scale), cmd.model_path)
     elif cmd.train:
         if cmd.model_path:
-            args.set_resume_learning(int(cmd.scale), cmd.model_path)
-        args.set_mode_train(int(cmd.scale), cmd.train_dir, cmd.val_dir)
+            args.set_resume_learning(int(cmd.scale), cmd.model_path, cmd.epochs)
+        args.set_mode_train(int(cmd.scale), cmd.train_dir, cmd.val_dir, cmd.epochs)
     if cmd.cpu:
         args.set_cpu()
     args.set_batch(cmd.batch)

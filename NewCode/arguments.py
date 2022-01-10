@@ -45,11 +45,12 @@ class Arguments:
         self.weight_decay = 0
         self.resume_learning = None
 
-    def set_resume_learning(self, scale, path):
-        self.lr = 1e-5
-        self.lr_decay = 5000
+    def set_resume_learning(self, scale, path, epochs):
+        self.lr = 1e-8  # 1/2 of initial learning rate; this is set up for finetuning
+        self.lr_decay = 100  # double the learning rate decay
         self.loss = "1*MS-SSIM"  # Now attemoting MS-SSIM based loss
         self.resume_learning = os.path.join(path, "SAN_BI" + str(scale) + "X.pt")
+        self.epochs = epochs
 
     def set_batch(self, batch):
         self.batch_size = batch
@@ -65,12 +66,13 @@ class Arguments:
     def set_use_bgr(self):
         self.use_bgr = True
 
-    def set_mode_train(self, scale, train_dir, val_dir):
+    def set_mode_train(self, scale, train_dir, val_dir, epochs):
         self.test_only = False
         self.pre_train = "."
         self.scale = scale
         self.train_dir = train_dir
         self.val_dir = val_dir
+        self.epochs = epochs
 
     def push(self):
         self.scale = [self.scale]
