@@ -228,7 +228,7 @@ def get_max_region_size(w, h):
         val /= 2
     if val < 8:
         print("WARNING: The maximum region size is less than 8, this may lower the accuracy of this network.")
-    return val
+    return int(val) # We now have a bug in python somehow python turns our result into a float!
 
 
 def image_decomposition(img, region_size):
