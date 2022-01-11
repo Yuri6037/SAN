@@ -48,7 +48,7 @@ class Arguments:
     def set_resume_learning(self, scale, path, epochs):
         self.lr = 1e-8  # 1/2 of initial learning rate; this is set up for finetuning
         self.lr_decay = 100  # double the learning rate decay
-        self.loss = "1*MS-SSIM"  # Now attemoting MS-SSIM based loss
+        #self.loss = "1*MS-SSIM"  # Now attemoting MS-SSIM based loss
         self.resume_learning = os.path.join(path, "SAN_BI" + str(scale) + "X.pt")
         self.epochs = epochs
 
