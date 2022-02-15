@@ -177,7 +177,10 @@ def calc_psnr(sr, hr, scale, rgb_range, benchmark=False):
     valid = diff[:, :, shave:-shave, shave:-shave]
     mse = valid.pow(2).mean()
 
-    return -10 * math.log10(mse)
+    if mse == 0:
+        return -10 * math.log10(0.0001) # Use a very small value but greater than 0
+    else:
+        return -10 * math.log10(mse)
 
 
 def make_optimizer(args, my_model):
